@@ -16,13 +16,13 @@
 - **独立运行**：各 skill 也可脱离 WorkBuddy，按子目录 README 的命令行说明单独用 `python` 调用。
 
 ### 在其他 agent 中安装
-本仓库的 skill 子目录（如 `tilt-focus-sweep/`）是标准的「`SKILL.md` + 脚本 + 资源」自包含结构，**原则上可被任何支持加载外部 skill / 插件的 agent 复用**（仓库已挂 `trae` / `openclaw` / `qclaw` / `hermes-agent` 等生态标签）：
+本仓库的 skill 子目录（如 `tilt-focus-sweep/`）是标准的「`SKILL.md` + 脚本 + 资源」自包含结构，**原则上可被任何支持加载外部 skill / 插件的 agent 复用**（仓库已挂 `trae` / `openclaw` / `qclaw` / `hermes-agent` / `claude` / `codex` / `deepseek-harness` 等生态标签）：
 
 1. 下载或克隆本仓库，取出需要的 skill 子目录。
-2. 按目标 agent 的官方文档，把该子目录放入其 **skill / 插件 / 扩展目录**（Trae、OpenClaw、QClaw、Hermes 等各自的目录命名不同，以官方说明为准）。
+2. 按目标 agent 的官方文档，把该子目录放入其 **skill / 插件 / 扩展目录**（Trae、OpenClaw、QClaw、Hermes、Claude Code、Codex、DeepSeek 等各自的目录命名不同，以官方说明为准）。
 3. 首次使用先装依赖：`pip install -r requirements.txt`，随后按子目录 README 的命令行调用。
 
-> 注意：不同 agent 对 `SKILL.md` 的字段要求略有差异，若某平台无法直接识别，可参照其文档调整 frontmatter（如 `name` / `description`），脚本本身无平台硬编码，跨 agent 通用。
+> 注意：**WorkBuddy 可零配置直接识别 `SKILL.md`**；而 Claude Code（`CLAUDE.md` + 命令/技能目录）、Codex（`AGENTS.md`）、DeepSeek harness 等各有自己的指令/技能格式，这些平台属于**「把 `SKILL.md` 的要点转写进对应格式」**而非一键安装。脚本本身无平台硬编码，跨 agent 通用。
 
 ## 许可证
 各 skill 以其子目录内的 `LICENSE` 为准（脚本多为 MIT）；操作示意图版权归原作者所有，转载使用前请取得授权。
