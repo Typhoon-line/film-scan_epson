@@ -3,7 +3,7 @@
 利用 135 调焦卡（USAF 1951 黑白标靶）长条扫描图，计算胶片扫描仪片夹的最佳垫高高度，
 消除因片夹与玻璃不平行导致的离焦模糊。支持**两遍精测法**把定位精度提升到约 0.027mm/份。
 
-> 本项目以扫描对焦评估工作流沉淀而来，配套操作示意图见仓库根目录 `*.jpg`。
+> 本项目以扫描对焦评估工作流沉淀而来，配套操作示意图见本目录（`tilt-focus-sweep/`）下的 `*.jpg`。
 
 ## 目录结构
 
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ### 2. 作为 WorkBuddy skill 安装
 
-把**整个文件夹**复制到以下任一位置，WorkBuddy 会自动读取其中的 `SKILL.md` 完成注册：
+本仓库的 skill 位于 `tilt-focus-sweep/` 子目录。安装时**复制该子目录**（而非整个仓库根）到以下任一位置，WorkBuddy 会自动读取其中的 `SKILL.md` 完成注册：
 
 - 用户级（所有项目可用）：`~/.workbuddy/skills/tilt-focus-sweep/`
 - 项目级（仅当前项目）：`{你的工作区}/.workbuddy/skills/tilt-focus-sweep/`
