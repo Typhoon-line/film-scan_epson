@@ -7,7 +7,20 @@
 
 ## 目录结构
 
-<span style="background-color:rgb(243, 245, 247)">127.0.0.1:49916</span>
+```
+tilt-focus-sweep/
+├── SKILL.md                            # WorkBuddy 技能元信息（name / description / agent_created）
+├── README.md                           # 本说明
+├── LICENSE                             # MIT
+├── requirements.txt                    # opencv-python-headless / numpy / Pillow
+├── .gitignore                          # 排除私有扫描数据（大图 / focus_history.json 等）
+├── tilt_focus_sweep.py                 # 主脚本：倾斜长条焦平面扫描 + 垫高换算
+├── focus_compare.py                    # 复用：细密精度锐度 + 色散 + 分方向限量分辨率
+├── usaf_resolve.py                     # 依赖：USAF 1951 极限分辨率测量（被 focus_compare 导入）
+├── gen_rank_md.py                      # 可选：从 history 生成排名总榜
+├── 利用调焦卡扫描锐度计算片夹垫高高度.md  # 方法详解（含推荐操作流程图文）
+└── *.jpg                              # 操作示意图 5 张（epson 扫描流程 / 垫片规格0.1·0.2mm / 调焦卡放置 / 垫片粘贴）
+```
 
 ## 安装
 
