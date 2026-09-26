@@ -1,0 +1,22 @@
+# ===== 用户私有扫描数据（禁止上传） =====
+# 巨型测试扫描图（单张 150MB+，含私人胶片内容）
+扫描图像示例.jpg
+img027.jpg
+img028.jpg
+*.jpg.bak
+
+# 历史/生成数据
+focus_history.json
+color_history.json
+打分排名.md
+
+# 临时验证产物
+_verify*/
+_chk*/
+_verify*
+_chk*
+
+# ===== Python 缓存 =====
+__pycache__/
+*.pyc
+*.pyo

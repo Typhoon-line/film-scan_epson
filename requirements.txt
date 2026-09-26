@@ -1,0 +1,5 @@
+# 胶片扫描仪片夹垫高计算 skill 运行依赖
+# 安装：pip install -r requirements.txt
+opencv-python-headless>=4.7
+numpy>=1.21
+Pillow>=9.0
