@@ -19,7 +19,7 @@
 - [爱普生、佳能 平板扫描仪性能参数表](scanner-material/平板扫描仪性能参数表.md)
 - **epson scan 官方扫描软件图文教程：**
 - [基础操作流程](scanner-material/基础操作流程.jpg)
-- [英语客户端 / 中文界面对照](scanner-material/英语 客户端 中文对照.jpg)
+- [英语客户端 / 中文界面对照](scanner-material/英语-客户端-中文对照.jpg)
 
 ## 扫描仪调试
 
