@@ -14,7 +14,7 @@
 
 ## 片夹叠放示意图
 
-<img src="片夹叠放示意图.webp" width="400" alt="片夹叠放示意图">
+<img src="片夹叠放示意图.webp" width="600" alt="片夹叠放示意图">
 
 ## epson scan 预览（齿孔对比）
 
@@ -29,4 +29,4 @@
 
 ## 扫描成片预览
 
-<img src="扫描成片预览.webp" width="400" alt="扫描成片预览">
+<img src="扫描成片预览.webp" width="600" alt="扫描成片预览">
