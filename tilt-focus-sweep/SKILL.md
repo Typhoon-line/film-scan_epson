@@ -88,5 +88,5 @@ python tilt_focus_sweep.py <新长条扫描图.jpg> --lift-mm 0.4 --n 15 --low-l
 | `focus_compare.py` | 复用：细密精度锐度 + 色散 + 分方向限量分辨率 |
 | `usaf_resolve.py` | 依赖：USAF 1951 分辨率极限测量（被 focus_compare 导入） |
 | `gen_rank_md.py` | 可选：从 history 生成排名总榜 |
-| `利用调焦卡扫描锐度计算片夹垫高高度.md` | 方法详解（含推荐操作流程图文） |
+| `计算垫高教程.md` | 方法详解（含推荐操作流程图文） |
 | `*.webp` | 操作示意图（epson 扫描流程 / 调教卡放置 / 垫片规格 等） |
