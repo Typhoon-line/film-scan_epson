@@ -70,7 +70,7 @@
 
 开孔精准、边缘绝缘光滑，装载方便，减少对底片的伤害与污染，使用简单高效
 
-更多相关图像、**使用说明详见&#x20;**[**film-holder-material/**](film-holder-material/)
+更多相关图像、**使用教程详见** [film-holder-material/片夹使用教程/](film-holder-material/片夹使用教程/)、**资料说明详见** [film-holder-material/](film-holder-material/)
 
 **可调整高度片夹**有方案，待开发
 
