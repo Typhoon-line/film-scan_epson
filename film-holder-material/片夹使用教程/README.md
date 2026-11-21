@@ -1,7 +1,7 @@
 # 片**夹使用教程**
 
 ## 准备工作：从袋中取出片夹时动作一定要轻柔，避免扯坏变形；扫描机机身锁、上盖锁要拨至解锁状态
-<img src="机身锁.webp" width="240" alt="机身锁"> <img src="上盖锁.webp" width="240" alt="上盖锁"> <img src="砂面雾面.webp" width="240" alt="砂面雾面">
+<img src="机身锁.webp" width="288" alt="机身锁"> <img src="上盖锁.webp" width="288" alt="上盖锁"> <img src="砂面雾面.webp" width="288" alt="砂面雾面">
 
 ## 1、抬起扫描仪上盖，将定位夹底座如图放置于扫描区，注意 销钉至端点距离短的在右侧
 ![1](1.webp)
