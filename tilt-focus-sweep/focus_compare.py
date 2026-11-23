@@ -70,13 +70,19 @@ def orient_landscape(img):
 
 
 def crop_center_strip(img, width=3500):
-    """从竖直中轴(x=W/2)裁取 width 像素宽的中心竖条(全高)。
+    """从竖直中轴(x=W/2)裁取中心竖条(全高)。
 
     目的: 只测标靶主体区域, 排除不同扫描之间"周围胶片留多留少 / 自制片夹
     截区域不同"造成的画幅差异, 让每次比较都锁定在标靶本身。
-    width 大于图像宽时退化为全宽。兼容灰度(2D)与彩色(3D HWC)。
+    兼容灰度(2D)与彩色(3D HWC)。
+
+    参数 width:
+      - width >= 1    : 固定像素宽(向下取整到偶数, 不超过图像宽)
+      - 0 < width < 1 : 按图像宽度的比例取中央区域(如 0.8 = 中央 80% 宽度)
     """
     h, w = (img.shape[:2] if img.ndim == 3 else img.shape)
+    if 0 < width < 1:
+        width = int(round(width * w))
     half = min(width, w) // 2
     cx = w // 2
     x0 = max(0, cx - half)
