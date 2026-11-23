@@ -1,0 +1,35 @@
+# ===== 本技能的运行产出（非源码，勿入库）=====
+# 排名脚本生成的报告 / 数据 / 图表（新 rank_* 命名；旧 v700_* 名也保留以防历史产物误入库）
+*.json
+rank_tiff.md
+rank_jpg.md
+rank_*_vchart.png
+rank_*_orient.jpg
+v700_group_rank*.md
+v700_group_rank*.json
+v700_vchart*.png
+方向矫正对比*.jpg
+contact_sheet*.jpg
+anomaly_*_diag.png
+anomaly_*_result.json
+
+# 裁窗/对照图输出目录
+_aligned_crops_orig/
+_aligned_crops/
+contact_sheet*/
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 用户扫描数据（真实底片，私有，勿提交）
+scans/**
+!scans/.gitkeep
+!scans/README.md
+
+# 编辑器 / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
