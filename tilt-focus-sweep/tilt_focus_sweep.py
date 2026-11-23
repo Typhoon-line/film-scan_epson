@@ -6,20 +6,20 @@
 玻璃板呈一个斜面。扫描后得到一张"长条图像": 沿斜面方向(长条长轴)不同位置
 离焦程度不同, 其中某一段恰好落在扫描仪最佳焦平面 → 该段锐度最高。
 
-本工具复用 focus_compare.py 的 `calculate_sharpness`(锐度), 色散改用本文件内的
-`ca_edge_shift`(R-B 边缘错位, 正确口径); 严格按以下 7 步处理单张长条扫描:
+本工具复用 focus_compare.py 的 `calculate_sharpness`(锐度)。色差 = 纵向色差 LoCA:
+把彩色 strip 拆成 R/G/B 三通道各自跑锐度曲线, 各通道峰值份 Y_c → Z_c = X × Y_c / n,
+通道间焦平面高度差即 LoCA(不再使用横向 R-B 边缘错位 / 色偏)。严格按以下 7 步处理:
 
   1. 传入单张标靶 jpg, 并询问"片夹一端垫高了多少 mm"(--lift-mm)
   2. crop_center_strip: 从中轴裁中央 80% 宽中心竖条(只锁标靶主体, 排除画幅差异);
      支持固定像素(>=1)或比例(0-1, 默认0.8 = 中央 80% 区域)
   3. 竖条按高度均分成 n 份(默认40), 每份 (整条宽) × (总高/n)
-  4. 逐份 calculate_sharpness → sharp(细密黑白精度锐度)
-  5. 逐份 ca_edge_shift → 色散 = R 与 B 通道边缘的亚像素位置差(px)
-     同时算有符号色偏 R-G/B-G。**色散与色偏只作辅助线展示, 不参与评分**
-     注: 不用 chroma/|∇| 那个比值 —— 它在弱边缘上被噪声底主导, 测的是"模糊程度"。
-  6. 综合分 = 锐度 sharp 本身(默认 --w-sharp 1.0 --w-ca 0.0), 排名
-     理由: 本长条上 CA 与"线条稠密程度"强相关(实测 CA vs 边缘强度 ρ≈-0.88),
-     混入评分会放大内容偏置, 而非提供独立的对焦信息。
+  4. 逐份 calculate_sharpness → sharp(灰度主锐度, 唯一评分量)
+  5. 逐份把彩色 strip 拆成 R/G/B 三通道, 各跑同一锐度算法 → sharp_R/G/B;
+     各通道按与灰度相同的"归一化平顶容差 + 中位索引"选峰值份 Y_c,
+     Z_c = X × Y_c / n (低端垫高参与时为 low + Z_c), 通道间高度差 = 纵向色差 LoCA。
+     **LoCA 只作诊断展示, 不参与评分**(它是焦平面位置差, 不是逐份质量分)。
+  6. 综合分 = 灰度锐度 sharp 本身, 排名(色差不再参与评分)。
     7. 取综合最高那一份, 连同序号前5/后5(共11份)的高度数据, 回原图截取这一段
      (100% 画质, 红框圈出最高份), 并算出"最佳锐度应垫高高度"
      注: 若综合最高份 Y 靠近长条两端、不满足"前5/后5"时, 不足的一侧直接截断
@@ -46,15 +46,13 @@
 
 用法:
   python tilt_focus_sweep.py <长条扫描单图或文件夹> [--lift-mm 1.25]
-      [--strip-mm <长条物理长度mm>] [--low-lift-mm <低端绝对垫高>] [--w-sharp 1.0] [--w-ca 0.0]
+      [--strip-mm <长条物理长度mm>] [--low-lift-mm <低端绝对垫高>] [--w-sharp 1.0]
       [--n 40] [--ksize 3] [--strip 0.8] [--out .]
 
   --lift-mm   片夹"高的一端"相对"低的一端"垫高的毫米数(高低差 X, 用于换算物理垫高量)
   --strip-mm  长条沿斜面方向的物理长度(mm)(用于把峰值位置换算成 mm)
   --low-lift-mm  低端绝对垫高 mm; 显式传入(即使为0)即判定为第2遍, 输出最终推荐 X–X+0.1mm
-  --w-sharp / --w-ca  综合分权重, 默认 1.0 : 0.0
-      默认色差**不参与评分**, CA 与色偏只画在下方辅助线里(诊断用)。
-      想让色差参与, 显式给 --w-ca 0.1 之类。
+  --w-sharp  综合分中锐度的权重(默认1.0; 色差固定不参与评分)
 
 装载约定(固定): 标靶菲林垫付高的一端 = 菲林上序号小的一端; 扫描后图像
   顶部即 = 低端(不垫高那端)。故"份 #1"恒为图像顶部 = 低端, Y 直接从图像
@@ -62,11 +60,11 @@
 
 输出(默认写脚本同目录):
   tilt_sweep_profile.png      双面板曲线 + 11份窗口
-                              上: 综合分(=锐度) 主曲线, 红点=最高份
-                              下: 辅助线(只诊断, 不进分) —— 色散 R-B 边缘错位(橙虚,px)
-                                  / 色偏 R-G(蓝) / B-G(青)
+                              上: 综合分(=灰度锐度) 主曲线, 红点=最高份
+                              下: R/G/B 三通道锐度曲线(诊断, 不进分) + 彩色峰值点,
+                                  底部红字 = 纵向色差 LoCA (Z_R/Z_G/Z_B 高度差)
   tilt_best_window.jpg        原图回截的 11 份区间(100% 画质, 全宽, 红框圈最高份)
-  (逐份 sharp/CA/色偏 + 排名 + 物理垫高量 直接打印在控制台, 不再落盘 json/预览图)
+  (逐份灰度 sharp + 三通道 LoCA + 排名 + 物理垫高量 直接打印在控制台)
 """
 
 import os
@@ -146,7 +144,9 @@ def _subpix_peak(mag, i, half=3):
 
 
 def ca_edge_shift(bgr, pct=99.0, half=3, max_edges=2500, seed=0):
-    """横向色散 = R 与 B 通道边缘的亚像素位置差 (px)。**这是正确的量化口径**。
+    """[已弃用, 主流程不再调用; 保留作独立工具] 横向色散 = R/B 边缘错位 (px)。
+
+    主流程色差已改为纵向色差(LoCA): 三通道锐度峰值份差换算高度差。
 
     为什么不用 chroma/|∇|: 那个比值在弱边缘上被"固定噪声底 ÷ 小梯度"主导,
     越模糊的段读数越虚高, 实测同一批数据只改掩膜松紧就能从 0.92 变到 0.29,
@@ -201,59 +201,56 @@ def ca_edge_shift(bgr, pct=99.0, half=3, max_edges=2500, seed=0):
 
 
 def measure_parts(S, ksize=3):
-    """7步 4/5: 逐份算 sharp + 色散(R-B 边缘错位), 并顺带算有符号色偏 R-G / B-G。"""
+    """7步 4/5: 逐份算灰度 sharp(唯一评分量) + R/G/B 三通道 sharp(纵向色差用)。
+
+    一次循环同时算灰度与三通道, 复用同一份 edges/同一套 calculate_sharpness。
+    返回 (sharp, pc, res, nedge):
+      sharp  (n,) 灰度锐度
+      pc     {'R':(n,),'G':(n,),'B':(n,)} 三通道锐度(cv2 BGR 索引 2/1/0)
+      res    (n,) 分辨率
+      nedge  (n,) 边缘数
+    """
     edges = S["edges"]
     strip_gray = S["strip_gray"]
     strip_color = S["strip_color"]
     n = len(edges) - 1
-    sharp, ca, ca_abs, res, nedge = [], [], [], [], []
-    cast_rg, cast_bg = [], []
+    sharp, res, nedge = [], [], []
+    pc = {'R': [], 'G': [], 'B': []}
     for i in range(n):
         y0, y1 = int(round(edges[i])), int(round(edges[i + 1]))
         if y1 - y0 < 16:
-            for lst in (sharp, ca, ca_abs, res, nedge, cast_rg, cast_bg):
+            for lst in (sharp, res, nedge, pc['R'], pc['G'], pc['B']):
                 lst.append(float('nan'))
             continue
         gp = strip_gray[y0:y1, :]
         cp = strip_color[y0:y1, :]
         try:
             sh, _n, _m, _mask, _g, rl = calculate_sharpness(gp, ksize=ksize)
-            cm, cm_abs, ne = ca_edge_shift(cp)
-            sharp.append(float(sh)); ca.append(cm)
-            ca_abs.append(cm_abs); res.append(float(rl)); nedge.append(float(ne))
-            cpf = cp.astype(np.float64)
-            cast_rg.append(float((cpf[:, :, 2] - cpf[:, :, 1]).mean()))
-            cast_bg.append(float((cpf[:, :, 0] - cpf[:, :, 1]).mean()))
+            sharp.append(float(sh)); res.append(float(rl)); nedge.append(float(_n))
         except Exception:
-            for lst in (sharp, ca, ca_abs, res, nedge, cast_rg, cast_bg):
+            for lst in (sharp, res, nedge):
                 lst.append(float('nan'))
-    return (np.array(sharp, float), np.array(ca, float),
-            np.array(ca_abs, float), np.array(res, float),
-            np.array(cast_rg, float), np.array(cast_bg, float),
-            np.array(nedge, float))
+        for ci, name in ((2, 'R'), (1, 'G'), (0, 'B')):   # cv2 BGR
+            try:
+                v, *_ = calculate_sharpness(cp[:, :, ci], ksize=ksize)
+                pc[name].append(float(v))
+            except Exception:
+                pc[name].append(float('nan'))
+    return (np.array(sharp, float),
+            {k: np.array(v, float) for k, v in pc.items()},
+            np.array(res, float), np.array(nedge, float))
 
 
 # ===================== 综合锐度(7步 6) =====================
-def comprehensive(sharp, ca, w_sharp=1.0, w_ca=0.0):
-    """锐度(越高越好)与色差(越低越好)各自 min-max 归一化到 0..1 后加权合成。
-
-    - 默认只用锐度(1.0:0.0): 本长条上色散随"线条稠密度"变、不随对焦变小,
-      混入评分只会放大内容偏置, 故色散只作辅助线展示。
-    - 想让色差参与评分, 显式传 w_ca>0(如 0.1)。
-    返回 comp 数组(越大越好)。
-    """
+def comprehensive(sharp, w_sharp=1.0):
+    """综合分 = 灰度锐度 min-max 归一化到 0..1。色差(LoCA)固定不参与评分。"""
     s = sharp.astype(float).copy()
-    c = ca.astype(float).copy()
     smin, smax = np.nanmin(s), np.nanmax(s)
-    cmin, cmax = np.nanmin(c), np.nanmax(c)
     sN = np.full_like(s, 0.5)
-    cN = np.full_like(c, 0.5)
     if smax - smin > 1e-12:
         sN = (s - smin) / (smax - smin)
-    if cmax - cmin > 1e-12:
-        cN = (cmax - c) / (cmax - cmin)   # 低色差 → 高 cN
-    comp = w_sharp * sN + w_ca * cN
-    return comp, sN, cN
+    comp = w_sharp * sN
+    return comp, sN
 
 
 # ===================== 回截窗口(7步 7 邻域) =====================
@@ -370,15 +367,12 @@ def imwrite_safe(path, img, quality=95):
     return True
 
 
-def make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi,
-               n, out_path, title, w_ca=0.0, fine=None, final=None,
-               fine_note=""):
+def make_chart(sharp, pc, peaks, comp, k, idx_lo, idx_hi,
+               n, out_path, title, fine=None, final=None, fine_note=""):
     """双面板曲线图。
 
-    上面板 = 综合分(主曲线, 黑粗) + 最高份红点 + 11份窗口绿底。
-    下面板 = 辅助线(只诊断, 不进分):
-        色散 CA(橙虚线, 左轴 px)
-        色偏 R-G(蓝细虚) / B-G(青细虚)(右轴, 灰度级)
+    上面板 = 综合分(=灰度锐度, 黑粗) + 最高份红点 + 11份窗口绿底。
+    下面板 = 诊断(不进分): R/G/B 三通道锐度曲线 + 各自峰值点标注(不画 LoCA)。
     """
     import math
     from PIL import Image, ImageDraw, ImageFont
@@ -425,8 +419,8 @@ def make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi,
 
     # ---------- 标题 ----------
     d.text((x0, 26), title, fill=(0, 0, 0), font=fonB)
-    d.text((x0, 50), "上：得分（越高越好，红点=最高）    "
-                     "下：辅助诊断线（色散 / 色偏，只展示不计分）",
+    d.text((x0, 50), "上：灰度锐度得分（越高越好，红点=最高）    "
+                     "下：R/G/B 三通道锐度曲线（诊断，不计分）",
            fill=(110, 110, 110), font=font_s)
     # ---------- 窗口绿底(两面板都覆盖) ----------
     d.rectangle([px(idx_lo + 1) - 5, A_t, px(idx_hi + 1) + 5, B_b], fill=(226, 244, 226))
@@ -439,8 +433,8 @@ def make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi,
     smin, smax = float(np.nanmin(sharp)), float(np.nanmax(sharp))
 
     def score_label(v):
-        """色差不参与计分时, 归一化刻度直接换算回锐度原始分更直观。"""
-        if w_ca == 0 and smax - smin > 1e-12:
+        """归一化刻度换算回锐度原始分, 更直观。"""
+        if smax - smin > 1e-12:
             return f"{smin + v * (smax - smin):.4f}"
         return f"{v:.2f}"
 
@@ -451,21 +445,12 @@ def make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi,
         d.text((10, y - 8), score_label(v), fill=(120, 120, 120), font=font_xs)
     d.line([(x0, A_t), (x0, A_b)], fill=(120, 120, 120))
     d.line([(x0, A_b), (x1, A_b)], fill=(120, 120, 120))
-    d.text((10, A_t - 28), "锐度分" if w_ca == 0 else "综合分",
-           fill=(60, 60, 60), font=font_s)
+    d.text((10, A_t - 28), "锐度分", fill=(60, 60, 60), font=font_s)
 
     pts = [(px(i + 1), yof(comp[i], a_lo, a_hi, A_t, A_b))
            for i in range(n) if np.isfinite(comp[i])]
     if len(pts) > 1:
         d.line(pts, fill=(25, 25, 25), width=3)
-    # 若色差也参与计分, 画一条细灰线示意锐度本身形状
-    if w_ca > 0:
-        sn = (sharp - np.nanmin(sharp)) / max(1e-12, np.nanmax(sharp) - np.nanmin(sharp))
-        sp = [(px(i + 1), yof(sn[i], a_lo, a_hi, A_t, A_b))
-              for i in range(n) if np.isfinite(sn[i])]
-        if len(sp) > 1:
-            dashed(sp, (150, 150, 150), 1, 6, 5)
-        d.text((x1 - 210, A_t + 2), "灰虚=纯锐度", fill=(150, 150, 150), font=font_xs)
 
     # 最高份标记
     by = yof(comp[k], a_lo, a_hi, A_t, A_b)
@@ -475,56 +460,37 @@ def make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi,
     tx = min(px(k + 1) + 10, x1 - 190)
     d.text((tx, max(A_t + 4, by - 26)), lbl, fill=(190, 20, 20), font=font)
 
-    # ================= 下面板: 辅助线 =================
-    cav = ca[np.isfinite(ca)]
-    ca_lo, ca_hi = float(cav.min()), float(cav.max())
-    p2 = max(0.03, (ca_hi - ca_lo) * 0.15)
-    ca_lo -= p2; ca_hi += p2
-    # 色偏右轴范围(R-G 与 B-G 共用)
-    allc = np.concatenate([cast_rg[np.isfinite(cast_rg)], cast_bg[np.isfinite(cast_bg)]])
-    c2_lo, c2_hi = float(allc.min()), float(allc.max())
-    p3 = max(0.2, (c2_hi - c2_lo) * 0.12)
-    c2_lo -= p3; c2_hi += p3
+    # ================= 下面板: R/G/B 三通道锐度(诊断) =================
+    allv = np.concatenate([pc[name][np.isfinite(pc[name])]
+                           for name in ('R', 'G', 'B')])
+    bv_lo, bv_hi = float(allv.min()), float(allv.max())
+    bp = max(0.001, (bv_hi - bv_lo) * 0.12)
+    bv_lo -= bp; bv_hi += bp
 
     for i in range(4):
-        v = ca_lo + (ca_hi - ca_lo) * i / 3
-        y = yof(v, ca_lo, ca_hi, B_t, B_b)
+        v = bv_lo + (bv_hi - bv_lo) * i / 3
+        y = yof(v, bv_lo, bv_hi, B_t, B_b)
         d.line([(x0, y), (x1, y)], fill=(238, 238, 238))
-        d.text((10, y - 8), f"{v:.2f}", fill=(210, 130, 20), font=font_xs)
-        v2 = c2_lo + (c2_hi - c2_lo) * i / 3
-        d.text((x1 + 8, y - 8), f"{v2:+.1f}", fill=(90, 120, 170), font=font_xs)
+        d.text((10, y - 8), f"{v:.4f}", fill=(130, 130, 130), font=font_xs)
     d.line([(x0, B_b), (x1, B_b)], fill=(120, 120, 120))
-    d.line([(x0, B_t), (x0, B_b)], fill=(210, 130, 20))
-    d.line([(x1, B_t), (x1, B_b)], fill=(90, 120, 170))
-    d.text((10, B_t - 28), "色散 R-B 错位 (px)", fill=(200, 120, 10), font=font_s)
-    d.text((x1 - 96, B_t - 28), "色偏 (灰度级)", fill=(80, 110, 160), font=font_s)
+    d.line([(x0, B_t), (x0, B_b)], fill=(120, 120, 120))
+    d.text((10, B_t - 28), "三通道锐度", fill=(60, 60, 60), font=font_s)
 
-    ca_pts = [(px(i + 1), yof(ca[i], ca_lo, ca_hi, B_t, B_b))
-              for i in range(n) if np.isfinite(ca[i])]
-    # 零线: 错位=0 表示 R/B 完全对齐, 是"无横向色散"的基准
-    if ca_lo < 0 < ca_hi:
-        yz = yof(0, ca_lo, ca_hi, B_t, B_b)
-        d.line([(x0, yz), (x1, yz)], fill=(205, 205, 205), width=1)
-        d.text((10, yz - 8), "0", fill=(150, 150, 150), font=font_xs)
-    if len(ca_pts) > 1:
-        dashed(ca_pts, (230, 145, 25), 2)
-    rg_pts = [(px(i + 1), yof(cast_rg[i], c2_lo, c2_hi, B_t, B_b))
-              for i in range(n) if np.isfinite(cast_rg[i])]
-    bg_pts = [(px(i + 1), yof(cast_bg[i], c2_lo, c2_hi, B_t, B_b))
-              for i in range(n) if np.isfinite(cast_bg[i])]
-    if len(rg_pts) > 1:
-        dashed(rg_pts, (40, 110, 190), 1, 5, 4)
-    if len(bg_pts) > 1:
-        dashed(bg_pts, (20, 150, 120), 1, 5, 4)
-
-    # 图例
-    lx, ly = x1 - 300, B_t + 6
-    d.line([(lx, ly + 7), (lx + 26, ly + 7)], fill=(230, 145, 25), width=2)
-    d.text((lx + 32, ly), "色散 R-B 错位", fill=(190, 110, 10), font=font_xs)
-    d.line([(lx + 108, ly + 7), (lx + 134, ly + 7)], fill=(40, 110, 190), width=1)
-    d.text((lx + 140, ly), "色偏 R-G", fill=(40, 110, 190), font=font_xs)
-    d.line([(lx + 210, ly + 7), (lx + 236, ly + 7)], fill=(20, 150, 120), width=1)
-    d.text((lx + 242, ly), "色偏 B-G", fill=(20, 150, 120), font=font_xs)
+    colors = {'R': (214, 45, 45), 'G': (30, 150, 60), 'B': (40, 90, 220)}
+    # 峰值标注 y 错位: G/B 常同峰, 错开避免文字重叠
+    label_dy = {'R': -28, 'G': -46, 'B': -12}
+    for name in ('R', 'G', 'B'):
+        v = pc[name]
+        cpts = [(px(i + 1), yof(v[i], bv_lo, bv_hi, B_t, B_b))
+                for i in range(n) if np.isfinite(v[i])]
+        if len(cpts) > 1:
+            d.line(cpts, fill=colors[name], width=2)
+        kk = peaks.get(name)
+        if kk is not None and kk < n and np.isfinite(v[kk]):
+            cx, cy = px(kk + 1), yof(v[kk], bv_lo, bv_hi, B_t, B_b)
+            d.ellipse([cx - 6, cy - 6, cx + 6, cy + 6], fill=colors[name])
+            d.text((min(cx + 10, x1 - 130), cy + label_dy[name]),
+                   f"{name} #{kk+1}", fill=colors[name], font=font_s)
 
     # ---------- 共用 X 轴 ----------
     step = max(1, n // 9)
@@ -582,6 +548,26 @@ def make_100pct_crop(S, k, idx_lo, idx_hi, out_path, quality=100):
     return ok, (y0, y1)
 
 
+# ============ 纵向色差 LoCA 峰值选择 ============
+def pick_peak_index(v, tol=0.005):
+    """与主流程一致的峰值选择: 归一化后 FLAT_TOL 平顶判定 + 中位索引。
+
+    返回 (k, flat_count)。k=None 表示全为 NaN。
+    tol 是归一化(0..1)后的容差, 不能直接用在原始 sharp(~0.12)上。
+    """
+    finite = np.isfinite(v)
+    if not finite.any():
+        return None, 0
+    vv = np.where(finite, v, np.nan)
+    mx, mn = np.nanmax(vv), np.nanmin(vv)
+    span = mx - mn
+    thr = mx - tol * span if span > 1e-12 else mx
+    flat = np.where(finite & (v >= thr))[0]
+    if len(flat) == 0:
+        return None, 0
+    return int(round(float(np.median(flat)))), len(flat)
+
+
 # ===================== 主流程 =====================
 def main():
     ap = argparse.ArgumentParser(
@@ -596,13 +582,11 @@ def main():
                          "脚本输出最终推荐垫高 X–X+0.1mm；不传=第一遍粗测")
     ap.add_argument("--w-sharp", type=float, default=1.0,
                     help="综合分中 锐度 的权重(默认1.0)")
-    ap.add_argument("--w-ca", type=float, default=0.0,
-                    help="综合分中 色差 的权重(默认0.0=不参与评分, CA只作辅助线展示)")
     ap.add_argument("--n", type=int, default=40, help="竖条均分份数(默认40)")
     ap.add_argument("--ksize", type=int, default=3)
     ap.add_argument("--strip", type=float, default=0.8,
                     help="中心竖条宽度: >=1 为像素(如 3500), 0-1 为图像宽度比例"
-                         "(默认0.8 = 中央 80% 区域)")
+                         "(默认0.8 = 中央 80%% 区域)")
     ap.add_argument("--out", default=None, help="输出目录(默认脚本同目录)")
     args = ap.parse_args()
 
@@ -615,8 +599,8 @@ def main():
         sys.exit(1)
 
     # 多张则逐张测、取中位数(单张时自然只有一张)
-    all_sharp, all_ca, all_caabs, all_res, all_rg, all_bg, all_ne = \
-        [], [], [], [], [], [], []
+    all_sharp, all_res, all_ne = [], [], []
+    all_pc = {'R': [], 'G': [], 'B': []}
     S0 = None
     for f in files:
         S = build_strip(f, strip_w=args.strip, n_parts=args.n)
@@ -625,25 +609,23 @@ def main():
             continue
         if S0 is None:
             S0 = S
-        sh, ca, caabs, res, rg, bg, ne = measure_parts(S, ksize=args.ksize)
-        all_sharp.append(sh); all_ca.append(ca); all_caabs.append(caabs)
-        all_res.append(res); all_rg.append(rg); all_bg.append(bg); all_ne.append(ne)
+        sh, pc_f, res, ne = measure_parts(S, ksize=args.ksize)
+        all_sharp.append(sh); all_res.append(res); all_ne.append(ne)
+        for name in ('R', 'G', 'B'):
+            all_pc[name].append(pc_f[name])
     if S0 is None:
         print("所有图像均无法读取。")
         sys.exit(1)
 
     sharp = np.nanmedian(np.array(all_sharp), axis=0)
-    ca = np.nanmedian(np.array(all_ca), axis=0)
-    ca_abs = np.nanmedian(np.array(all_caabs), axis=0)
     res = np.nanmedian(np.array(all_res), axis=0)
-    cast_rg = np.nanmedian(np.array(all_rg), axis=0)
-    cast_bg = np.nanmedian(np.array(all_bg), axis=0)
     nedge = np.nanmedian(np.array(all_ne), axis=0)
-    centers = S0["centers"]
+    pc = {name: np.nanmedian(np.array(all_pc[name]), axis=0)
+          for name in ('R', 'G', 'B')}
     n = len(sharp)
 
-    # 计分时用色散的绝对值(幅度=严重程度); 展示时用有符号值(能看出方向)
-    comp, sN, cN = comprehensive(sharp, ca_abs, w_sharp=args.w_sharp, w_ca=args.w_ca)
+    # 综合分 = 灰度锐度(唯一评分量)
+    comp, sN = comprehensive(sharp, w_sharp=args.w_sharp)
     # ---- 平顶处理: 平顶容差内用 sharp 找峰 + 取中位索引 ----
     # 平顶(如 2.0-2.75 段)时 nanargmax 取第一个最大值会定向偏低端且跨扫描跳变;
     # 故平顶区内改用 sharp 找峰, 并对等效峰取中位索引(单点居中, 不偏低端)。
@@ -677,28 +659,35 @@ def main():
             fine = recommend_fine_window(phys['focal_plane_height_mm'],
                                          at_top_edge=(k == n - 1))
 
+    # ---- 纵向色差 LoCA(主流程色差计算) ----
+    peaks, Zs, flat_counts = {}, {}, {}
+    for name in ('R', 'G', 'B'):
+        kk, fc = pick_peak_index(pc[name])
+        peaks[name], flat_counts[name] = kk, fc
+        if kk is None or not args.lift_mm:
+            Zs[name] = float('nan')
+        else:
+            base = low_val if low_given else 0.0
+            Zs[name] = base + args.lift_mm * (kk + 1) / n
+    loca_ok = args.lift_mm and all(z == z for z in Zs.values())
+
     # ---- 图表 + 回截 ----
     # 横幅附注: 峰值贴最高份=向上外探, 否则=峰值居中
     top_edge = (fine is not None and k == n - 1)
     fine_note = ("峰值贴顶·向上外探" if top_edge else "峰值居中")
     prof_path = os.path.join(out_dir, "tilt_sweep_profile.png")
-    make_chart(sharp, ca, cast_rg, cast_bg, comp, k, idx_lo, idx_hi, n,
+    make_chart(sharp, pc, peaks, comp, k, idx_lo, idx_hi, n,
                prof_path, "倾斜标靶焦平面扫描 · 得分最高位置",
-               w_ca=args.w_ca, fine=fine, final=final, fine_note=fine_note)
+               fine=fine, final=final, fine_note=fine_note)
     crop_path = os.path.join(out_dir, "tilt_best_window.jpg")
     ok, (y0, y1) = make_100pct_crop(
         S0, k, idx_lo, idx_hi, crop_path, quality=100)
 
     # ---- 控制台 ----
-    if args.w_ca == 0:
-        wnote = "综合分 = 锐度本身（色散/色偏只作辅助线，不参与评分）"
-    else:
-        wnote = (f"综合分 = {args.w_sharp:.2f}×锐度 + {args.w_ca:.2f}×(1-色差)")
     print(f"倾斜标靶焦平面扫描完成 (中心竖条 {S0['W']}px 宽 × {S0['H']}px 高, 均分 {n} 份)")
-    print(f"  计分方式: {wnote}")
+    print(f"  计分方式: 灰度锐度本身（三通道 LoCA 只作诊断, 不参与评分）")
     print(f"  得分最高份: #{k+1}/{n}  位置 = 长轴(从图像顶部/低端计) {frac_best*100:.1f}% 处")
-    print(f"    sharp = {sharp[k]:.4f}   "
-          f"(色散 R-B 边缘错位 = {ca[k]:+.3f}px, 仅参考)")
+    print(f"    sharp = {sharp[k]:.4f}")
     if len(flat_idx) > 1:
         print(f"    并列: 第 {flat_idx[0]+1}–{flat_idx[-1]+1} 份得分相同(容差内), "
               f"取中位 #{k+1}")
@@ -763,10 +752,34 @@ def main():
             print(f"      最佳点距低端 = {phys['best_pos_mm_from_low']:.2f} mm")
     else:
         print("  (未提供 --lift-mm, 跳过物理垫高换算)")
+    # ---- 纵向色差 LoCA 控制台输出(主流程色差结果) ----
+    print(f"\n  === 纵向色差 LoCA（R/G/B 三通道锐度峰值, 诊断不计分）===")
+    for name in ('R', 'G', 'B'):
+        kk = peaks[name]
+        fc = flat_counts[name]
+        if kk is None:
+            print(f"    {name}: 无有效数据")
+            continue
+        tag = "  ⚠平顶不确定" if fc > n * 0.15 else ""
+        ztxt = f"  Z={Zs[name]:.3f}mm" if loca_ok else ""
+        print(f"    {name}: 峰值 #{kk+1}/{n}  sharp={pc[name][kk]:.4f}"
+              f"{ztxt}  平顶={fc}份{tag}")
+    if loca_ok:
+        print(f"    LoCA: R−G={(Zs['R']-Zs['G'])*1000:+.0f}µm  "
+              f"G−B={(Zs['G']-Zs['B'])*1000:+.0f}µm  "
+              f"R−B={(Zs['R']-Zs['B'])*1000:+.0f}µm")
+        print(f"    分辨率 = X/n = {args.lift_mm/n*1000:.0f}µm/份; "
+              f"峰值差若 <1 份只可判为“小于分辨率”")
+        if any(fc > n * 0.15 for fc in flat_counts.values()):
+            print(f"    ⚠ 存在宽平顶通道: 峰值份是平顶中位, 不代表明确焦平面; "
+                  f"该通道 LoCA 读数不可信")
+    else:
+        print(f"    (需 --lift-mm 才能把峰值份换算成高度差)")
+
     print(f"  已保存:")
-    print(f"    {os.path.basename(prof_path)}  (曲线图)")
+    print(f"    {os.path.basename(prof_path)}  (曲线图: 上=灰度锐度, 下=R/G/B 三通道曲线)")
     print(f"    {os.path.basename(crop_path)}  (原图回截, 100% 画质, 全宽, 红框=最高份)")
-    print(f"  (逐份 sharp/CA/综合 与物理垫高量见上方控制台输出)")
+    print(f"  (逐份 sharp/三通道/LoCA 与物理垫高量见上方控制台输出)")
 
 
 if __name__ == "__main__":

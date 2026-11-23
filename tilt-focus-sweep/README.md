@@ -15,7 +15,7 @@ tilt-focus-sweep/
 ├── requirements.txt                    # opencv-python-headless / numpy / Pillow
 ├── .gitignore                          # 排除私有扫描数据（大图 / focus_history.json 等）
 ├── tilt_focus_sweep.py                 # 主脚本：倾斜长条焦平面扫描 + 垫高换算
-├── focus_compare.py                    # 复用：细密精度锐度 + 色散 + 分方向限量分辨率
+├── focus_compare.py                    # 复用：细密精度锐度 + 分方向限量分辨率
 ├── usaf_resolve.py                     # 依赖：USAF 1951 极限分辨率测量（被 focus_compare 导入）
 ├── gen_rank_md.py                      # 可选：从 history 生成排名总榜
 ├── 计算垫高教程.md  # 方法详解（含推荐操作流程图文）
@@ -55,9 +55,10 @@ python tilt_focus_sweep.py <第2张长条图.tif> --lift-mm 1.0 --n 10 --low-lif
 
 输出：
 
-- `tilt_sweep_profile.png`：双面板曲线（上=锐度得分，下=色散/色偏辅助线）+ 窗口标记 + **底部红字横幅 = 本遍固定结果**（第1遍=第2遍区间建议；第2遍=最终推荐垫高 X.X–X.X+0.1mm）
+- `tilt_sweep_profile.png`：双面板曲线（上=灰度锐度得分，下=R/G/B 三通道锐度曲线 + 各自峰值点（不标 LoCA））+ 窗口标记 + **底部红字横幅 = 本遍固定结果**（第1遍=第2遍区间建议；第2遍=最终推荐垫高 X.X–X.X+0.1mm）
 - `tilt_best_window.jpg`：原图全宽回截最佳高度区间（红框圈最高份）
-- 控制台打印：最佳份 Y、Zf、以及本遍建议/最终推荐（与红字横幅一致）
+- 控制台打印：最佳份 Y、Zf、三通道峰值份/LoCA、以及本遍建议/最终推荐（与红字横幅一致）
+- 色差口径 = 纵向色差 LoCA（三通道锐度峰值份差换算高度差），只诊断不计分；评分始终用灰度锐度
 - **整个测试只需提交 2 张 TIFF**：第 1 张粗测定区间、第 2 张精测定最终值
 
 ## 核心公式
