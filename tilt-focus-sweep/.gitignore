@@ -16,6 +16,11 @@ _chk*/
 _verify*
 _chk*
 
+# 图片源图：仓库只留 WebP，JPG/PNG 仅存本地（用户约定）
+*.jpg
+*.jpeg
+*.png
+
 # ===== Python 缓存 =====
 __pycache__/
 *.pyc
