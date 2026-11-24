@@ -19,30 +19,29 @@
 ## 片夹详情
 
 <table>
-<tr><td><img src="资料图例/片夹详情1.webp" width="400" alt="片夹详情1"></td></tr>
+<tr><td><img src="资料图例/片夹详情1.webp" width="800" alt="片夹详情1"></td></tr>
 <tr><td align="center">片夹详情1</td></tr>
-<tr><td><img src="资料图例/片夹详情2.webp" width="400" alt="片夹详情2"></td></tr>
+<tr><td><img src="资料图例/片夹详情2.webp" width="800" alt="片夹详情2"></td></tr>
 <tr><td align="center">片夹详情2</td></tr>
-<tr><td><img src="资料图例/片夹详情3.webp" width="400" alt="片夹详情3"></td></tr>
+<tr><td><img src="资料图例/片夹详情3.webp" width="800" alt="片夹详情3"></td></tr>
 <tr><td align="center">片夹详情3</td></tr>
-<tr><td><img src="资料图例/片夹详情4.webp" width="400" alt="片夹详情4"></td></tr>
+<tr><td><img src="资料图例/片夹详情4.webp" width="800" alt="片夹详情4"></td></tr>
 <tr><td align="center">片夹详情4</td></tr>
-<tr><td><img src="资料图例/片夹详情5.webp" width="400" alt="片夹详情5"></td></tr>
+<tr><td><img src="资料图例/片夹详情5.webp" width="800" alt="片夹详情5"></td></tr>
 <tr><td align="center">片夹详情5</td></tr>
-<tr><td><img src="资料图例/片夹详情6.webp" width="400" alt="片夹详情6"></td></tr>
+<tr><td><img src="资料图例/片夹详情6.webp" width="800" alt="片夹详情6"></td></tr>
 <tr><td align="center">片夹详情6</td></tr>
-<tr><td><img src="资料图例/片夹详情7.webp" width="400" alt="片夹详情7"></td></tr>
+<tr><td><img src="资料图例/片夹详情7.webp" width="800" alt="片夹详情7"></td></tr>
 <tr><td align="center">片夹详情7</td></tr>
-<tr><td><img src="资料图例/片夹详情8.webp" width="400" alt="片夹详情8"></td></tr>
+<tr><td><img src="资料图例/片夹详情8.webp" width="800" alt="片夹详情8"></td></tr>
 <tr><td align="center">片夹详情8</td></tr>
 </table>
 
 ## 版本配置
 
 <table>
-<tr>
-<td><img src="资料图例/标准版.webp" width="400" alt="标准版"></td>
-<td><img src="资料图例/进阶版.webp" width="400" alt="进阶版"></td>
-</tr>
-<tr><td align="center">标准版</td><td align="center">进阶版</td></tr>
+<tr><td><img src="资料图例/标准版.webp" width="800" alt="标准版"></td></tr>
+<tr><td align="center">标准版</td></tr>
+<tr><td><img src="资料图例/进阶版.webp" width="800" alt="进阶版"></td></tr>
+<tr><td align="center">进阶版</td></tr>
 </table>
