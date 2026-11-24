@@ -1,6 +1,6 @@
 # 片夹相关资料（film-holder-material）
 
-本目录收录超薄片夹的设计稿、叠放示意图、epson scan 预览与扫描成片效果，供选型与改装参考。
+本目录收录超薄片夹的设计稿、扫描成片预览和片夹图文详情，适用于已改装面板、校准过焦平面的扫描仪。需配合防牛顿玻璃搭配使用。另外可调高度片夹也在开发中。
 
 ## 设计稿
 
@@ -19,26 +19,22 @@
 ## 片夹详情
 
 <table>
-<tr>
-<td><img src="资料图例/片夹详情%20(1).webp" width="400" alt="片夹详情1"></td>
-<td><img src="资料图例/片夹详情%20(2).webp" width="400" alt="片夹详情2"></td>
-</tr>
-<tr><td align="center">片夹详情1</td><td align="center">片夹详情2</td></tr>
-<tr>
-<td><img src="资料图例/片夹详情%20(3).webp" width="400" alt="片夹详情3"></td>
-<td><img src="资料图例/片夹详情%20(4).webp" width="400" alt="片夹详情4"></td>
-</tr>
-<tr><td align="center">片夹详情3</td><td align="center">片夹详情4</td></tr>
-<tr>
-<td><img src="资料图例/片夹详情%20(5).webp" width="400" alt="片夹详情5"></td>
-<td><img src="资料图例/片夹详情%20(6).webp" width="400" alt="片夹详情6"></td>
-</tr>
-<tr><td align="center">片夹详情5</td><td align="center">片夹详情6</td></tr>
-<tr>
-<td><img src="资料图例/片夹详情%20(7).webp" width="400" alt="片夹详情7"></td>
-<td><img src="资料图例/片夹详情%20(8).webp" width="400" alt="片夹详情8"></td>
-</tr>
-<tr><td align="center">片夹详情7</td><td align="center">片夹详情8</td></tr>
+<tr><td><img src="资料图例/片夹详情1.webp" width="400" alt="片夹详情1"></td></tr>
+<tr><td align="center">片夹详情1</td></tr>
+<tr><td><img src="资料图例/片夹详情2.webp" width="400" alt="片夹详情2"></td></tr>
+<tr><td align="center">片夹详情2</td></tr>
+<tr><td><img src="资料图例/片夹详情3.webp" width="400" alt="片夹详情3"></td></tr>
+<tr><td align="center">片夹详情3</td></tr>
+<tr><td><img src="资料图例/片夹详情4.webp" width="400" alt="片夹详情4"></td></tr>
+<tr><td align="center">片夹详情4</td></tr>
+<tr><td><img src="资料图例/片夹详情5.webp" width="400" alt="片夹详情5"></td></tr>
+<tr><td align="center">片夹详情5</td></tr>
+<tr><td><img src="资料图例/片夹详情6.webp" width="400" alt="片夹详情6"></td></tr>
+<tr><td align="center">片夹详情6</td></tr>
+<tr><td><img src="资料图例/片夹详情7.webp" width="400" alt="片夹详情7"></td></tr>
+<tr><td align="center">片夹详情7</td></tr>
+<tr><td><img src="资料图例/片夹详情8.webp" width="400" alt="片夹详情8"></td></tr>
+<tr><td align="center">片夹详情8</td></tr>
 </table>
 
 ## 版本配置
