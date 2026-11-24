@@ -12,24 +12,41 @@
 <tr><td align="center">120 片夹设计稿</td><td align="center">135 片夹设计稿</td></tr>  
 </table>
 
-## 片夹叠放示意图
-
-![片夹叠放示意图](资料图例/片夹叠放示意图.webp)
-
-## epson scan 预览（齿孔对比）
-
-<table>  
-<tr>  
-<td><img src="资料图例/epson_scan_全齿孔预览%20.webp" width="300" alt="全齿孔预览"></td>  
-<td><img src="资料图例/epson_scan_小齿孔预览%20.webp" width="300" alt="小齿孔预览"></td>  
-<td><img src="资料图例/epson_scan_无齿孔预览%20.webp" width="300" alt="无齿孔预览"></td>  
-</tr>  
-<tr><td align="center">全齿孔</td><td align="center">小齿孔</td><td align="center">无齿孔</td></tr>  
-</table>
-
 ## 扫描成片预览
 
 ![扫描成片预览](资料图例/扫描成片预览.webp)
 
+## 片夹详情
 
+<table>
+<tr>
+<td><img src="资料图例/片夹详情%20(1).webp" width="400" alt="片夹详情1"></td>
+<td><img src="资料图例/片夹详情%20(2).webp" width="400" alt="片夹详情2"></td>
+</tr>
+<tr><td align="center">片夹详情1</td><td align="center">片夹详情2</td></tr>
+<tr>
+<td><img src="资料图例/片夹详情%20(3).webp" width="400" alt="片夹详情3"></td>
+<td><img src="资料图例/片夹详情%20(4).webp" width="400" alt="片夹详情4"></td>
+</tr>
+<tr><td align="center">片夹详情3</td><td align="center">片夹详情4</td></tr>
+<tr>
+<td><img src="资料图例/片夹详情%20(5).webp" width="400" alt="片夹详情5"></td>
+<td><img src="资料图例/片夹详情%20(6).webp" width="400" alt="片夹详情6"></td>
+</tr>
+<tr><td align="center">片夹详情5</td><td align="center">片夹详情6</td></tr>
+<tr>
+<td><img src="资料图例/片夹详情%20(7).webp" width="400" alt="片夹详情7"></td>
+<td><img src="资料图例/片夹详情%20(8).webp" width="400" alt="片夹详情8"></td>
+</tr>
+<tr><td align="center">片夹详情7</td><td align="center">片夹详情8</td></tr>
+</table>
 
+## 版本配置
+
+<table>
+<tr>
+<td><img src="资料图例/标准版.webp" width="400" alt="标准版"></td>
+<td><img src="资料图例/进阶版.webp" width="400" alt="进阶版"></td>
+</tr>
+<tr><td align="center">标准版</td><td align="center">进阶版</td></tr>
+</table>
