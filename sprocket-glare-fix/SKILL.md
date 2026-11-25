@@ -150,6 +150,7 @@ python deglare_verify.py --name MY_PROFILE --report
 
 ```
 sprocket-glare-fix/
+├── README.md             # 面向用户的说明（作用/用法）
 ├── SKILL.md
 ├── requirements.txt
 ├── .gitignore
