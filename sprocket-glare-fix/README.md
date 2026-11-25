@@ -79,21 +79,45 @@ python jpg_recolor.py --src "JPG目录" img051 img055 img062
 
 ## 自学习档案（可选，进阶）
 
-光晕强度存在扫描流程差异，档案按流程隔离，让处理越用越准。
+### 核心目标：批内稳定，批间允许波动
+
+光晕是扫描仪光学的固定属性，但**每批扫描的强度会小幅波动，不会收敛成一个固定值**。
+所以档案建模为**分层**结构：
+
+- **批次（batch）**：一次连续扫描（连续编号、相邻文件生成时间约 5 分钟内的几张）算一批。
+  同一批的光晕相同 → **批内所有图共用同一个 amp**，表现稳定一致。
+- **批间**：不同批次各自标定自己的 amp，允许波动，不强行拉平到全局常数。
+- **逐孔微差**：批内每个齿孔可有 ±15% 以内的系数差（带内 lift 学习，强收缩）。
+
+简言之：**不追求全局收敛，只保证同一批内稳定**。
+
+### 用法
 
 ```bash
 # 1) 建档案（每个扫描流程一次）
 python deglare_learn.py init --name MY_PROFILE --dpi 4800 --bits 16 --mode no-color
 
-# 2) 常规：用「带孔图 + 无孔对照」追加样本，脚本自己跑 SIFT + 差分 + 学习
-python deglare_learn.py add --name MY_PROFILE --with A.tif --without B.tif
+# 2) 看看这批图会被怎么分组（连续编号 + 5min 间隔 → 一批）
+python deglare_learn.py batch A.tif B.tif C.tif
+# 输出示例: img001_20261125: 3 张 ['A.tif','B.tif','C.tif']  ← 这个 key 就是批次名
+
+# 3) 用「带孔图 + 无孔对照」给该批建档（--batch 用上一步的 key）
+python deglare_learn.py add --name MY_PROFILE --with A.tif --without A_nohole.tif --batch img001_20261125
+# 该批多对图就多跑几次 add，同一 --batch → 批内 amp 由这些样本稳健拟合
+
+# 4) 修复时指定批次 → 整批用同一个 amp
+python deglare_auto.py A.tif --profile MY_PROFILE --batch img001_20261125
+python deglare_auto.py B.tif --profile MY_PROFILE --batch img001_20261125   # 同批，同一 amp
 
 # 无对照组时，只学逐孔相对系数
 python deglare_learn.py band --name MY_PROFILE A.tif
 
-# 查看档案
+# 查看档案（列出每批 amp）
 python deglare_learn.py show --name MY_PROFILE
 ```
+
+未指定 `--batch` 时用档案全局 amp（旧行为兼容）；指定但档案里没该批时，回退全局并提示。
+换一个批次（换了扫描时间/编号段）重新 `batch` 分组 + `add --batch` 建档即可，两批互不干扰。
 
 **职责隔离**：`deglare_verify.py` 是只读效果检测，**不会**把修复图当样本、也不会改参数。
 样本池只收未修改的原扫描图。

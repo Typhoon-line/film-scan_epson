@@ -59,8 +59,10 @@ def get_profile(db, name):
             amp_center=PRIOR_AMP, amp_prior=PRIOR_AMP, amp_prior_weight=PRIOR_W,
             n_amp=0, n_hole=0, hole_factor=[1.0]*8,
             hole_shrink=HOLE_SHRINK, hole_cap=HOLE_CAP,
-            samples=[], band_obs=[], verify=[])
-    return db['profiles'][name]
+            samples=[], band_obs=[], verify=[], batches={})
+    p = db['profiles'][name]
+    p.setdefault('batches', {})   # 向后兼容旧档案
+    return p
 
 def refit_amp(p):
     """稳健集中: 对照组 amp 中位数, 与先验按等效样本数加权; 剔除 SNR 过低样本"""
@@ -82,6 +84,35 @@ def refit_amp(p):
     wp = float(p['amp_prior_weight']); wn = float(w.sum())
     p['amp_center'] = float((wp*p['amp_prior'] + wn*m)/(wp+wn))
     p['n_amp'] = len(vals)
+
+def get_batch(p, key):
+    """取(或建)一个批次记录。批次内所有图共用该批 amp, 批间各自波动。"""
+    b = p.setdefault('batches', {}).setdefault(key, dict(
+        amp_prior=PRIOR_AMP, amp=None, n=0, samples=[], date=_now()))
+    b.setdefault('samples', [])
+    return b
+
+def refit_batch(p, key):
+    """用该批自己的样本稳健拟合批次 amp; 不触碰全局 amp_center。
+    批内多张对照 -> 批内稳定; 新批次独立拟合 -> 批间可波动。"""
+    b = get_batch(p, key)
+    vals=[]; w=[]
+    for s in b['samples']:
+        a = s.get('amp')
+        if a is None: continue
+        wi = min(1.0, max(0.15, float(s.get('snr',1.0))/1.5))
+        vals.append(float(a)); w.append(wi)
+    if not vals:
+        b['amp'] = float(b['amp_prior']); return b
+    vals=np.array(vals); w=np.array(w)
+    lo,hi = np.percentile(vals,[20,80])
+    sel=(vals>=lo)&(vals<=hi)
+    if sel.sum()==0: sel=np.ones(len(vals),bool)
+    m = float(np.average(vals[sel], weights=w[sel]))
+    wp = PRIOR_W; wn = float(w.sum())
+    b['amp'] = float((wp*float(b['amp_prior']) + wn*m)/(wp+wn))
+    b['n'] = len(vals)
+    return b
 
 def refit_hole(p):
     """逐孔系数 = 1 + shrink × (跨扫描归一化 lift 均值 - 1), 限幅"""
@@ -110,7 +141,7 @@ def load_pair_images(with_path, ctl_path):
     a = C.load(with_path); b = C.load(ctl_path)
     return a,b
 
-def add_control(db, name, with_path, ctl_path, note=''):
+def add_control(db, name, with_path, ctl_path, note='', batch=None):
     p = get_profile(db,name)
     a,b = load_pair_images(with_path, ctl_path)
     a01,_,_ = C.to_unchanged_scale(a); b01,_,_ = C.to_unchanged_scale(b)
@@ -118,9 +149,10 @@ def add_control(db, name, with_path, ctl_path, note=''):
     dx,dy,inl,ng = C.sift_shift(a,b)
     r = C.pair_delta(a01,b01,dx,dy,centers)
     amp = max(0.0, r['delta'])/C.SHAPE_MEAN
-    p['samples'].append(dict(file=os.path.basename(with_path), control=os.path.basename(ctl_path),
+    samp = dict(file=os.path.basename(with_path), control=os.path.basename(ctl_path),
         dx=dx, dy=dy, inliers=inl, delta=round(r['delta'],6), amp=round(float(amp),6),
-        snr=round(r['snr'],3), date=_now(), note=note))
+        snr=round(r['snr'],3), date=_now(), note=note, batch=batch)
+    p['samples'].append(samp)
     # 同时记录带内逐孔 lift (归一化) 供逐孔学习
     top,bot = C.detect_bands(a01)
     if top and bot:
@@ -129,11 +161,18 @@ def add_control(db, name, with_path, ctl_path, note=''):
         m = float(np.mean(lifts))
         if m>1e-6:
             p['band_obs'].append(dict(file=os.path.basename(with_path),
-                lifts_norm=[round(float(x/m),4) for x in lifts], date=_now()))
+                lifts_norm=[round(float(x/m),4) for x in lifts], date=_now(), batch=batch))
     refit_amp(p); refit_hole(p)
+    binfo = None
+    if batch:
+        bd = get_batch(p, batch)
+        bd['samples'].append(samp)
+        refit_batch(p, batch)
+        binfo = dict(batch=batch, amp=bd['amp'], n=bd['n'])
     return dict(delta=r['delta'], amp=amp, snr=r['snr'], dx=dx,dy=dy,
                 inliers=inl, n_holes=len(centers), amp_center=p['amp_center'],
-                n_amp=p['n_amp'], hole_factor=p['hole_factor'], n_hole=p['n_hole'])
+                n_amp=p['n_amp'], hole_factor=p['hole_factor'], n_hole=p['n_hole'],
+                batch=binfo)
 
 def add_band_obs(db, name, path):
     """无对照组也记录带内逐孔 lift -> 可学习逐孔系数, 但不改变 amp_center"""
@@ -195,6 +234,11 @@ def show(db, name=None):
             print(f'    sample {s["file"]}: delta={s["delta"]:+.5f} amp={s["amp"]:.5f} snr={s["snr"]:.2f} '
                   f'd=({s["dx"]:+d},{s["dy"]:+d}) inl={s.get("inliers","-")}')
         print(f'  band_obs n={len(p["band_obs"])}, verify n={len(p.get("verify",[]))}')
+        batches=p.get('batches',{})
+        if batches:
+            print(f'  batches ({len(batches)} 批):')
+            for k,bd in batches.items():
+                print(f'    {k}: amp={bd.get("amp"):.6f} n={bd.get("n",0)} (批内共用此值)')
 
 def main():
     ap=argparse.ArgumentParser(description='齿孔光晕自学习档案')
@@ -208,6 +252,9 @@ def main():
     q.add_argument('--bands',default=None)
     q=sub.add_parser('add'); q.add_argument('--name',required=True); q.add_argument('--with',dest='with_path',required=True)
     q.add_argument('--without',dest='ctl_path',required=True); q.add_argument('--note',default='')
+    q.add_argument('--batch',default=None,help='归入批次key(批内共用amp,建议用 batch 子命令自动分组得到的key)')
+    q=sub.add_parser('batch'); q.add_argument('paths',nargs='+',help='一组图,自动按 连续编号+5min间隔 分批次')
+    q.add_argument('--gap',type=float,default=5.0,help='相邻生成时间最大间隔(分钟),默认5')
     q=sub.add_parser('band'); q.add_argument('--name',required=True); q.add_argument('path')
     q=sub.add_parser('show'); q.add_argument('--name')
     q=sub.add_parser('export'); q.add_argument('--name',required=True); q.add_argument('--out')
@@ -221,8 +268,11 @@ def main():
         p=seed_from_existing(db,args.name,args.data_dir,args.pairs.split(';'),args.bands)
         save_db(db); print('seed',args.name,'samples=',len(p['samples']),'amp_center=',round(p['amp_center'],6))
     elif args.cmd=='add':
-        r=add_control(db,args.name,args.with_path,args.ctl_path,args.note)
+        r=add_control(db,args.name,args.with_path,args.ctl_path,args.note,args.batch)
         save_db(db); print(json.dumps(r,ensure_ascii=False,indent=1))
+    elif args.cmd=='batch':
+        for key,files in C.group_batches(args.paths, args.gap):
+            print(f'{key}: {len(files)} 张  {[os.path.basename(f) for f in files]}')
     elif args.cmd=='band':
         r=add_band_obs(db,args.name,args.path)
         save_db(db); print(json.dumps(r,ensure_ascii=False,indent=1))

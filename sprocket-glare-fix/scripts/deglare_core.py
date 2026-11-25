@@ -212,3 +212,49 @@ def pair_delta(with_im, ctl_im, dx, dy, centers, measure=MEASURE):
     per = np.array(per, np.float64)
     snr = abs(delta)/(np.nanstd(per)/max(1,np.sqrt(np.isfinite(per).sum()))) if np.isfinite(per).any() else 0.0
     return dict(delta=float(delta), per=per, snr=float(snr), crop=(v0,v1,u0,u1))
+
+# ---------- 批次识别 ----------
+# 目标: 批内用同一套参数(表现稳定), 批间允许波动(不收敛成全局固定值)。
+# 判据(用户定): 连续编号 + 相邻文件生成时间约 5min 内 => 同一批; 断档/超时 => 新批。
+import re as _re, datetime as _dt
+
+def file_index(path):
+    """从文件名末尾提取序号 img001.tif -> 1; 无序号返回 None"""
+    stem = os.path.splitext(os.path.basename(path))[0]
+    m = _re.search(r'(\d+)$', stem)
+    return int(m.group(1)) if m else None
+
+def file_mtime(path):
+    return os.path.getmtime(path)
+
+def group_batches(files, gap_min=5.0, gap_index=1):
+    """把文件列表分成扫描批次。
+    规则: 按文件名序号排序后, 相邻两张满足 (序号差<=gap_index) 且
+    (mtime 间隔<=gap_min 分钟) 则同批; 否则切新批。无序号的文件各自成批。
+    返回 [(key, [file,...]), ...], key 用批内首张 'img001_20261125' 形式。"""
+    items = []
+    for f in files:
+        idx = file_index(f)
+        items.append(dict(path=f, idx=idx, mt=file_mtime(f)))
+    items.sort(key=lambda d: (d['idx'] if d['idx'] is not None else 10**9, d['mt']))
+    batches, cur = [], []
+    for it in items:
+        if not cur:
+            cur = [it]; continue
+        p = cur[-1]
+        contiguous = (it['idx'] is not None and p['idx'] is not None
+                      and 0 < it['idx'] - p['idx'] <= gap_index)
+        in_time = abs(it['mt'] - p['mt']) <= gap_min * 60.0
+        if contiguous and in_time:
+            cur.append(it)
+        else:
+            batches.append(cur); cur = [it]
+    if cur: batches.append(cur)
+    out = []
+    for b in batches:
+        first = b[0]
+        day = _dt.datetime.fromtimestamp(first['mt']).strftime('%Y%m%d')
+        base = os.path.splitext(os.path.basename(first['path']))[0]
+        key = f'{base}_{day}'
+        out.append((key, [x['path'] for x in b]))
+    return out

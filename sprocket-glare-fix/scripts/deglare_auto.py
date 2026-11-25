@@ -76,12 +76,21 @@ def process(path, args, dark_bgr, profile):
 
     amp_desc = f'{AMP_CAL*args.strength:.4f} (固定标定)'
     if profile and not args.no_screen:
-        amps = np.array([float(profile['amp_center'])*args.strength
-                         for _ in centers], np.float64)
+        # 批次优先: 有 --batch 且档案存了该批 amp -> 全批共用这一个值(批内稳定)
+        batch_key = getattr(args, 'batch', None)
+        bdata = (profile.get('batches') or {}).get(batch_key) if batch_key else None
+        if bdata and bdata.get('amp') is not None:
+            center = float(bdata['amp'])
+            src_desc = f'批次 {batch_key} amp={center:.5f} (批内共用)'
+        else:
+            center = float(profile['amp_center'])
+            src_desc = (f'档案全局 center={center:.5f}'
+                        + (f' [批次 {batch_key} 未标定,回退全局]' if batch_key else ''))
+        amps = np.array([center*args.strength for _ in centers], np.float64)
         f = profile.get('hole_factor') or [1.0]*8
         amps = amps * np.array([f[i%len(f)] for i in range(len(centers))])
-        amp_desc = (f'档案 center={profile["amp_center"]:.5f} × '
-                    f'逐孔{np.round(amps/profile["amp_center"]/args.strength,3).tolist()}')
+        amp_desc = (f'{src_desc} × '
+                    f'逐孔{np.round(amps/center/args.strength,3).tolist()}')
     elif args.amp is not None:
         amps = np.array([args.amp*args.strength]*len(centers), np.float64)
     else:
@@ -109,6 +118,8 @@ def main():
     ap.add_argument('--strength', type=float, default=1.0, help='整体补偿倍率 (默认1.0)')
     ap.add_argument('--amp', type=float, default=None, help='覆盖固定峰值amp')
     ap.add_argument('--profile', default=None, help='使用自学习档案名')
+    ap.add_argument('--batch', default=None, help='批次key(批内共用该批amp); 用 deglare_learn.py batch 分组获得')
+    ap.add_argument('--gap', type=float, default=5.0, help='自动分组的相邻生成时间最大间隔(分钟),默认5')
     ap.add_argument('--learn-band', action='store_true', help='记录带内逐孔lift,更新档案(无对照组也可学逐孔)')
     ap.add_argument('--no-screen', action='store_true', help='只修齿孔带,不动成像区')
     ap.add_argument('--probe', action='store_true', help='只探测边界/孔位,不生成')
@@ -135,6 +146,13 @@ def main():
     dark = C.hex2bgr01(args.dark)
     mode = f'档案 {args.profile}' if profile else f'固定 amp={args.amp if args.amp is not None else AMP_CAL}'
     print(f'输入 {len(files)} 张 | 底色 #{args.dark} | {mode} | strength={args.strength}')
+    if args.batch:
+        print(f'指定批次: {args.batch} (批内所有图共用该批 amp)')
+    elif len(files) > 1:
+        print('自动批次预览 (连续编号 + 生成间隔<=%.0fmin):' % args.gap)
+        for key, grp in C.group_batches(files, args.gap):
+            print(f'  {key}: {len(grp)} 张 {[os.path.basename(x) for x in grp]}')
+        print('  提示: 当前未指定 --batch, 全部图用同一 amp; 若上列有多批请分批各跑一次并传 --batch')
     for f in files:
         print(f'\n[{os.path.basename(f)}]')
         try:

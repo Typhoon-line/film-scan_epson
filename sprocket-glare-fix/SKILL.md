@@ -17,6 +17,10 @@ agent_created: true
 8bit JPG  ── jpg_recolor.py          ──> 仅齿孔带理想化 (成像区不动)
 ```
 
+**自学习的目标 = 批内稳定、批间允许波动**（不是收敛成全局固定值）：
+光晕是光学固定属性但每批扫描强度会小幅波动，因此按扫描批次各自标定 amp，
+同一批的图共用同一个 amp 保证表现一致，不同批互不拉平。
+
 ## When to use
 
 - 要修齿孔白孔发虚、边缘晕圈、非成像区底色不纯。
@@ -95,12 +99,19 @@ python jpg_recolor.py --src <JPG目录> img051 img055 img062
 # 建档（一次性）
 python deglare_learn.py init --name MY_PROFILE --dpi 4800 --bits 16 --mode no-color
 
-# 【常规路径】用带孔图 + 无孔对照追加样本：
+# 先看一批图怎么分组（连续编号 + 相邻生成间隔<=5min → 一批）
+python deglare_learn.py batch A.tif B.tif C.tif     # 输出的 key 即批次名
+
+# 【常规路径】用带孔图 + 无孔对照追加样本，并归入批次：
 # 自己跑 SIFT 纯平移对齐 + 差分 + 带内 lift，不依赖任何旧 JSON。新增样本一律用它。
-python deglare_learn.py add --name MY_PROFILE --with A.tif --without B.tif
+# --batch 用上面 batch 子命令得到的 key → 该批所有图共用这个批次的 amp
+python deglare_learn.py add --name MY_PROFILE --with A.tif --without B.tif --batch img001_20261125
 
 # 无对照组，仅学逐孔相对系数（来自带内 lift，强收缩）
 python deglare_learn.py band --name MY_PROFILE A.tif
+
+# 修复时指定批次 → 整批用同一个 amp（批内稳定）
+python deglare_auto.py A.tif --profile MY_PROFILE --batch img001_20261125
 
 # 【异常备用】仅当新原图有问题（边界探测失败 / SIFT 内点不足 / 对照扫坏）
 # 无法走 add 时，才用 references/calibration 里的旧 JSON 一次性重建档案：
@@ -131,7 +142,8 @@ python deglare_verify.py --name MY_PROFILE --report
 | `BOT_FACTOR` | 0.6 | 底边补偿为顶边 0.6 倍 |
 | `HALF` | 170 px | 单孔横向半宽 |
 | 底色 | `#201B07` | 深棕黑（早期 040008 已弃） |
-| `amp_center` | 0.001103 | 由 6 对采集样本稳健学习（先验 0.001） |
+| `amp_center` | 0.001103 | 全局参考值；有 `--batch` 时用该批 amp 而非它 |
+| 批次 amp | 每批独立 | `--batch` 归批、`add --batch` 学习；批内共用、批间可波动 |
 | `hole_factor` | ±9% 限幅 15% | 逐孔微差，带内 lift 跨扫描均值学习，强收缩 0.35 |
 
 ## 方法论要点（踩过的坑）
@@ -145,6 +157,9 @@ python deglare_verify.py --name MY_PROFILE --report
 4. **边界自适应**：不硬编码 y。用白孔行 + 亮度谷底探测，逐图置信度 high/medium/low。
 5. **橘色边字软保留**：硬阈值会切出毛刺；用 warm mask 的 smoothstep 软混合。
 6. **白孔亮度是观感参数**：不影响光晕物理，定档后可不动。
+7. **批内稳定、批间波动**：amp 按批次标定（连续编号 + 相邻生成间隔 ≤5min 为一批），
+   同批图共用同一个 amp 保证表现一致；不同批各自学、不收敛成全局常数。
+   全局 amp_center 仅作无批次信息时的回退。
 
 ## 文件结构
 
