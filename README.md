@@ -83,27 +83,47 @@
 
 教程详见子目录 [`tilt-focus-sweep/计算垫高教程.md`](tilt-focus-sweep/计算垫高教程.md)。
 
-#### film-scan-rank —— 通过扫描结果排名确定最佳调焦方式
+#### film-scan-rank —— 通过多次扫描 结果排名 定位焦平面
 
 利用每次调焦后底片扫描图像，通过脚本计算得分，排行对比得出扫描效果最佳的一次调整，按此次调整固定好面板即可。支持 JPG（8bit，0.70锐+0.15色+0.15跨）与 TIFF（16bit，0.85锐+0.15色）两条独立管线，各有全量与加测入口；严格同帧对齐、只在原图像素上算指标。
 
 教程详见子目录 [`film-scan-rank/README.md`](film-scan-rank/README.md)。
 
-sprocket-glare-fix —— 扫描图像齿孔眩光改善
+#### epson_scan-auto —— epson scan官方软件全自动执行扫描
+
+超薄片夹优化了底片装载效率，而这个skill从软件层解放双手，告别预览等待。一键启动，自动执行扫描流程，结束后提醒。
+
+教程详见子目录 [`epson_scan-auto/README.md`](film-scan-rank/README.md)。
+
+#### sprocket-glare-fix —— 扫描图像齿孔眩光改善
 
 超薄片夹在全齿孔扫描时，不可避免的会产生齿孔附近眩光，这是扫描仪本身光学结构就存在的问题，与片夹、扫描软件、扫描方式等无关。
 
-教程详见子目录 [`film-scan-rank/README.md`](film-scan-rank/README.md)。
+教程详见子目录 [`sprocket-glare-fix/README.md`](film-scan-rank/README.md)。
 
 #### 如何使用这些 skill
 
-- **作为 WorkBuddy skill 安装**：把对应子目录（如 `tilt-focus-sweep/`）复制到 `~/.workbuddy/skills/` 下，WorkBuddy 会自动识别其中的 `SKILL.md`。
-- **独立运行**：各 skill 也可脱离 WorkBuddy，按子目录 README 的命令行说明单独用 `python` 调用。
-- **在其他 agent 中安装**：本仓库的 skill 子目录（如 `tilt-focus-sweep/`）是标准的「`SKILL.md` + 脚本 + 资源」自包含结构，**原则上可被任何支持加载外部 skill / 插件的 agent 复用**：
+- 在Ai对话中输入：
 
-1. 下载或克隆本仓库，取出需要的 skill 子目录。
-2. 按目标 agent 的官方文档，把该子目录放入其 **skill / 插件 / 扩展目录**（Trae、OpenClaw、QClaw、Hermes、Claude Code、Codex、DeepSeek 等各自的目录命名不同，以官方说明为准）。
-3. 首次使用先装依赖：`pip install -r requirements.txt`，随后按子目录 README 的命令行调用。
+```
+安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/tilt-focus-sweep
+```
+
+
+```
+安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/film-scan-rank
+```
+
+
+```
+安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/epson_scan-auto
+```
+
+
+```
+安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/sprocket-glare-fix
+```
+
 
 ## 防牛顿处理
 
