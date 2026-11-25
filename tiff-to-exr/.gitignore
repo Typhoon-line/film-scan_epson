@@ -1,0 +1,9 @@
+# 生成的线性大文件（本地产物，不入库）
+*.exr
+*_linear_*.tif
+*_linear_*.png
+*preview.png
+
+# Python 缓存
+__pycache__/
+*.pyc
