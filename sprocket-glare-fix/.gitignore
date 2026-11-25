@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.tmp
+# 处理产物仅本地使用，不同步
+recolored/
+deglared/
+*_deglared.tif
+*_recolored.png
+*_preview.png
+batch_overview.png

@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "profiles": {
+    "4800dpi_tiff16_nocc": {
+      "meta": {
+        "name": "4800dpi_tiff16_nocc",
+        "created": "2026-11-25 17:41:47",
+        "dpi": 4800,
+        "bits": 16,
+        "mode": "no-color",
+        "desc": "4800dpi 16bit TIFF 无色彩校正"
+      },
+      "amp_center": 0.0011028795176245899,
+      "amp_prior": 0.001,
+      "amp_prior_weight": 3.0,
+      "n_amp": 6,
+      "n_hole": 6,
+      "hole_factor": [
+        1.0961,
+        1.1034,
+        1.0358,
+        0.9977,
+        0.9682,
+        0.9501,
+        0.935,
+        0.9137
+      ],
+      "hole_shrink": 0.35,
+      "hole_cap": 0.15,
+      "samples": [
+        {
+          "file": "img001.tif",
+          "control": "img007.tif",
+          "dx": -12,
+          "dy": 986,
+          "inliers": 281,
+          "delta": 0.00087,
+          "amp": 0.00165,
+          "snr": 2.56,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        },
+        {
+          "file": "img002.tif",
+          "control": "img008.tif",
+          "dx": -13,
+          "dy": 970,
+          "inliers": 570,
+          "delta": 0.00021,
+          "amp": 0.0004,
+          "snr": 1.166,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        },
+        {
+          "file": "img003.tif",
+          "control": "img009.tif",
+          "dx": -11,
+          "dy": 954,
+          "inliers": 382,
+          "delta": 0.00039,
+          "amp": 0.00073,
+          "snr": 1.771,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        },
+        {
+          "file": "img004.tif",
+          "control": "img010.tif",
+          "dx": -10,
+          "dy": 936,
+          "inliers": 139,
+          "delta": 0.00034,
+          "amp": 0.00065,
+          "snr": 0.543,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        },
+        {
+          "file": "img005.tif",
+          "control": "img011.tif",
+          "dx": -8,
+          "dy": 918,
+          "inliers": 324,
+          "delta": 0.00076,
+          "amp": 0.00143,
+          "snr": 0.853,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        },
+        {
+          "file": "img006.tif",
+          "control": "img012.tif",
+          "dx": -14,
+          "dy": 902,
+          "inliers": 30,
+          "delta": 0.00105,
+          "amp": 0.00198,
+          "snr": 1.349,
+          "date": "2026-11-25 17:41:48",
+          "note": "seed"
+        }
+      ],
+      "band_obs": [
+        {
+          "file": "img001.tif",
+          "lifts_norm": [
+            1.8717,
+            1.4146,
+            1.0609,
+            0.8832,
+            0.7927,
+            0.7323,
+            0.6589,
+            0.5857
+          ],
+          "date": "2026-11-25 17:41:48"
+        },
+        {
+          "file": "img002.tif",
+          "lifts_norm": [
+            1.7263,
+            1.4302,
+            1.1515,
+            0.9643,
+            0.7642,
+            0.7015,
+            0.6842,
+            0.5778
+          ],
+          "date": "2026-11-25 17:41:48"
+        },
+        {
+          "file": "img003.tif",
+          "lifts_norm": [
+            1.6899,
+            1.4223,
+            1.1384,
+            0.9853,
+            0.8857,
+            0.7455,
+            0.6044,
+            0.5285
+          ],
+          "date": "2026-11-25 17:41:48"
+        },
+        {
+          "file": "img004.tif",
+          "lifts_norm": [
+            1.2748,
+            1.2923,
+            1.0982,
+            0.9582,
+            0.916,
+            0.8096,
+            0.8503,
+            0.8006
+          ],
+          "date": "2026-11-25 17:41:48"
+        },
+        {
+          "file": "img005.tif",
+          "lifts_norm": [
+            1.0548,
+            1.4032,
+            1.2907,
+            1.1222,
+            0.9758,
+            0.8652,
+            0.7217,
+            0.5664
+          ],
+          "date": "2026-11-25 17:41:48"
+        },
+        {
+          "file": "img006.tif",
+          "lifts_norm": [
+            0.8547,
+            1.6966,
+            1.1807,
+            1.0269,
+            0.8478,
+            0.8617,
+            0.8091,
+            0.7225
+          ],
+          "date": "2026-11-25 17:41:48"
+        }
+      ],
+      "verify": [
+        {
+          "orig": "img001.tif",
+          "fixed": "img001_deglared.tif",
+          "before": 0.000858,
+          "after": 0.000366,
+          "reduction": 0.5734,
+          "snr": 2.744,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        },
+        {
+          "orig": "img002.tif",
+          "fixed": "img002_deglared.tif",
+          "before": 0.000134,
+          "after": -0.000304,
+          "reduction": 3.2676,
+          "snr": 0.831,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        },
+        {
+          "orig": "img003.tif",
+          "fixed": "img003_deglared.tif",
+          "before": 0.000399,
+          "after": -6.8e-05,
+          "reduction": 1.171,
+          "snr": 1.29,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        },
+        {
+          "orig": "img004.tif",
+          "fixed": "img004_deglared.tif",
+          "before": 0.000348,
+          "after": -9.9e-05,
+          "reduction": 1.2841,
+          "snr": 0.626,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        },
+        {
+          "orig": "img005.tif",
+          "fixed": "img005_deglared.tif",
+          "before": 0.000815,
+          "after": 0.000326,
+          "reduction": 0.5998,
+          "snr": 1.122,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        },
+        {
+          "orig": "img006.tif",
+          "fixed": "img006_deglared.tif",
+          "before": 0.001104,
+          "after": 0.000539,
+          "reduction": 0.5117,
+          "snr": 1.401,
+          "amp_center_used": 0.001103,
+          "date": "2026-11-25 17:53:50",
+          "note": "仅效果检测,不入库"
+        }
+      ]
+    }
+  }
+}
