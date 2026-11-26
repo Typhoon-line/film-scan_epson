@@ -63,6 +63,17 @@ except ImportError:
 
 
 # ---------------------------------------------------------------- 路径辅助
+def imwrite_any(path, img, params=None):
+    """中/英文路径与文件名通用：imencode+tofile 避开 cv2.imwrite 在 Windows 中文路径静默失败。"""
+    import os as _os, cv2 as _cv2
+    ext = _os.path.splitext(path)[1] or '.png'
+    ok, buf = _cv2.imencode(ext, img) if params is None else _cv2.imencode(ext, img, params)
+    if not ok:
+        raise RuntimeError('图像编码失败: %s' % path)
+    buf.tofile(path)
+    return True
+
+
 def _ascii_path_workaround(path, writer, *args):
     """OpenEXR C++ 后端在 Windows 对中文路径不稳：先写 ASCII 临时文件再移动。"""
     try:
@@ -205,7 +216,7 @@ def write_float_tiff(rgb_lin, path):
     import cv2
 
     # cv2.imwrite 把数组第 0 通道当 B 写 → 先 RGB 转 BGR
-    ok = cv2.imwrite(path, rgb_lin[..., [2, 1, 0]].astype(np.float32))
+    ok = imwrite_any(path, rgb_lin[..., [2, 1, 0]].astype(np.float32))
     if not ok:
         raise IOError("写 float TIFF 失败：%s" % path)
 

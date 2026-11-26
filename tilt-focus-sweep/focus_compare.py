@@ -53,6 +53,17 @@ PXMM = 125.0
 
 
 # ===================== 工具 =====================
+def imwrite_any(path, img, params=None):
+    """中/英文路径与文件名通用：imencode+tofile 避开 cv2.imwrite 在 Windows 中文路径静默失败。"""
+    import os as _os, cv2 as _cv2
+    ext = _os.path.splitext(path)[1] or '.png'
+    ok, buf = _cv2.imencode(ext, img) if params is None else _cv2.imencode(ext, img, params)
+    if not ok:
+        raise RuntimeError('图像编码失败: %s' % path)
+    buf.tofile(path)
+    return True
+
+
 def imread_safe(path, flag=cv2.IMREAD_GRAYSCALE):
     """Unicode 安全读取(OpenCV 在 Windows 下不支持中文路径, 用 np.fromfile 绕过)。"""
     data = np.fromfile(path, dtype=np.uint8)
@@ -433,7 +444,7 @@ def save_sharp_vis(path, out_path, max_side=1200, ksize=3, strip=3500):
     red[:, :] = (0, 0, 255)
     m3 = (msmall > 127)[:, :, None]
     out = np.where(m3, cv2.addWeighted(base_col, 0.55, red, 0.45, 0), base_col)
-    cv2.imwrite(out_path, out)
+    imwrite_any(out_path, out)
     return True
 
 
@@ -471,7 +482,7 @@ def save_spectrum(path, out_path, max_side=900, ksize=3, strip=3500):
         cv2.putText(canvas, f"limit~{2*np.pi*min(above):.1f}px",
                     (max(4, x - 70), 22), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (0, 0, 255), 1)
-    cv2.imwrite(out_path, canvas)
+    imwrite_any(out_path, canvas)
     return True
 
 

@@ -20,6 +20,17 @@ deglare_core.detect_bands 探测后写入, 或对已知底片沿用标定值。
 import os, json, argparse, cv2, numpy as np
 MAXV = 65535.0
 
+def imwrite_any(path, img, params=None):
+    """中/英文路径与文件名通用：imencode+tofile 避开 cv2.imwrite 在 Windows 中文路径静默失败。"""
+    import os as _os, cv2 as _cv2
+    ext = _os.path.splitext(path)[1] or '.png'
+    ok, buf = _cv2.imencode(ext, img) if params is None else _cv2.imencode(ext, img, params)
+    if not ok:
+        raise RuntimeError('图像编码失败: %s' % path)
+    buf.tofile(path)
+    return True
+
+
 def load(p): return cv2.imdecode(np.fromfile(p, dtype=np.uint8), cv2.IMREAD_UNCHANGED)
 def hex2bgr16(s):
     s = s.lstrip('#'); r,g,b = int(s[0:2],16),int(s[2:4],16),int(s[4:6],16)
@@ -104,7 +115,7 @@ def main():
             centers,hy = hole_centers(a)
             amp = float(heal[f'{n:03d}']['amp'])
             out = build(a, top, bot, centers, amp, dark, level)
-            cv2.imwrite(os.path.join(od, f'img{n:03d}_healed.tif'), out)
+            imwrite_any(os.path.join(od, f'img{n:03d}_healed.tif'), out)
             print(f'  img{n:03d}: white={int(MAXV*level)} (8bit≈{int(255*level)})')
             del a,out
     print('done')

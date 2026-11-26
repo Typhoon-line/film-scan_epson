@@ -31,6 +31,17 @@ import cv2
 
 
 # ===================== IO =====================
+def imwrite_any(path, img, params=None):
+    """中/英文路径与文件名通用：imencode+tofile 避开 cv2.imwrite 在 Windows 中文路径静默失败。"""
+    import os as _os, cv2 as _cv2
+    ext = _os.path.splitext(path)[1] or '.png'
+    ok, buf = _cv2.imencode(ext, img) if params is None else _cv2.imencode(ext, img, params)
+    if not ok:
+        raise RuntimeError('图像编码失败: %s' % path)
+    buf.tofile(path)
+    return True
+
+
 def imread_safe(path, flag=cv2.IMREAD_GRAYSCALE):
     data = np.fromfile(path, dtype=np.uint8)
     return cv2.imdecode(data, flag) if data.size else None
@@ -280,7 +291,7 @@ def plot_spec(result, out_path, title=''):
         cv2.line(cv, (fx, y0), (fx, y0 + 4), (120, 120, 120), 1)
         cv2.putText(cv, f"{fv:.2f}", (fx - 12, H - 22),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 100), 1)
-    cv2.imwrite(out_path, cv)
+    imwrite_any(out_path, cv)
 
 
 def modulation_table(result, gmax=7):
