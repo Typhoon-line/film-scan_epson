@@ -83,7 +83,7 @@
 
 教程详见子目录 [`tilt-focus-sweep/计算垫高教程.md`](tilt-focus-sweep/计算垫高教程.md)。
 
-#### film-scan-rank —— 通过多次扫描 结果排名 定位焦平面
+#### [film-scan-rank](film-scan-rank/) —— 通过多次扫描 结果排名 定位焦平面
 
 利用每次调焦后底片扫描图像，通过脚本计算得分，排行对比得出扫描效果最佳的一次调整，按此次调整固定好面板即可。支持 JPG（8bit，0.70锐+0.15色+0.15跨）与 TIFF（16bit，0.85锐+0.15色）两条独立管线，各有全量与加测入口；严格同帧对齐、只在原图像素上算指标。
 
@@ -95,11 +95,15 @@
 
 教程详见子目录 [`epson_scan-auto/README.md`](film-scan-rank/README.md)。
 
-#### sprocket-glare-fix —— 扫描图像齿孔眩光改善
+#### [sprocket-glare-fix](sprocket-glare-fix/) —— 扫描图像齿孔眩光改善
 
 超薄片夹在全齿孔扫描时，不可避免的会产生齿孔附近眩光，这是扫描仪本身光学结构就存在的问题，与片夹、扫描软件、扫描方式等无关。
 
-教程详见子目录 [`sprocket-glare-fix/README.md`](film-scan-rank/README.md)。
+教程详见子目录 [`sprocket-glare-fix/README.md`](sprocket-glare-fix/README.md)。
+
+#### [tiff-to-exr](tiff-to-exr/)—— epson scan 扫描的tiff文件线性化 适用于达芬奇去色罩流程
+
+详见子目录 [`tiff-to-exr/README.md`](tiff-to-exr/README.md)。
 
 #### 如何使用这些 skill
 
@@ -109,21 +113,17 @@
 安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/tilt-focus-sweep
 ```
 
-
 ```
 安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/film-scan-rank
 ```
-
 
 ```
 安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/epson_scan-auto
 ```
 
-
 ```
 安装 https://github.com/Typhoon-line/film-scan_epson/tree/main/sprocket-glare-fix
 ```
-
 
 ## 防牛顿处理
 
