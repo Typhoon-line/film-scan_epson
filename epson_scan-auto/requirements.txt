@@ -1,0 +1,4 @@
+# EPSON Scan 3.9 GUI 自动化依赖（Windows only）
+pywinauto>=0.6.9
+# pywinauto 会带上 pywin32（win32gui / win32con / win32process）
+# 实测环境：Python 3.13 / pywinauto 0.6.9 / numpy 2.5.x（numpy 非本模块必需）

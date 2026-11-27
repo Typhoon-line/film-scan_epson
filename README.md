@@ -89,11 +89,11 @@
 
 教程详见子目录 [`film-scan-rank/README.md`](film-scan-rank/README.md)。
 
-#### epson_scan-auto —— epson scan官方软件全自动执行扫描
+#### [epson_scan-auto](epson_scan-auto/) —— epson scan官方软件全自动执行扫描
 
-超薄片夹优化了底片装载效率，而这个skill从软件层解放双手，告别预览等待。一键启动，自动执行扫描流程，结束后提醒。
+超薄片夹优化了底片装载效率，而这个skill从软件层解放双手，告别预览等待。自动控制经典 EPSON Scan 3.9 走完机型确定→专业模式设置→配置→文件保存→预览→扫描→落盘全流程。三套流程方案用 JSON 保存、命令行切换：`rank`（48bit TIFF 排名）/ `jpg_social`（JPEG 社媒）/ `tiff_post`（48bit TIFF 后期）。全程后台消息级不抢鼠标，异常退出走三步优雅关闭、绝不杀进程。
 
-教程详见子目录 [`epson_scan-auto/README.md`](film-scan-rank/README.md)。
+教程详见子目录 [`epson_scan-auto/README.md`](epson_scan-auto/README.md)。
 
 #### [sprocket-glare-fix](sprocket-glare-fix/) —— 扫描图像齿孔眩光改善
 

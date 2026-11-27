@@ -1,0 +1,17 @@
+# 生成的扫描图（本地产物，不入库）
+*.tif
+*.tiff
+*.jpg
+*.png
+
+# 运行日志 / 临时输出
+*.log
+*_dump.txt
+
+# 本机运行时状态（安装初始化的磁盘选择 + 流程快照，各机各自生成，不入库）
+config.json
+scan_state.json
+
+# Python 缓存
+__pycache__/
+*.pyc

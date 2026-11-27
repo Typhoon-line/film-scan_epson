@@ -32,7 +32,7 @@ pip install opencv-python-headless numpy pillow OpenEXR
 | 片夹垫高多少、找最佳焦平面、调焦卡 / 倾斜标靶长条扫描、离焦模糊 | `tilt-focus-sweep/` | `tilt-focus-sweep/SKILL.md` |
 | 多组扫描结果排名、哪种片夹 / 玻璃 / 垫高最好、对焦质量横评 | `film-scan-rank/` | `film-scan-rank/SKILL.md` |
 | TIFF 转线性 EXR、给达芬奇/NamiColor 准备输入、scan gamma 1.8、去色罩输入 | `tiff-to-exr/` | `tiff-to-exr/SKILL.md` |
-| EPSON Scan 全自动扫描、批量扫描、告别预览等待 | `epson_scan-auto/` | 目录建设中，暂不可用 |
+| EPSON Scan 全自动扫描、批量扫描、告别预览等待、扫描流程方案保存切换 | `epson_scan-auto/` | `epson_scan-auto/SKILL.md` |
 | 全齿孔扫描时齿孔附近眩光改善 | `sprocket-glare-fix/` | `sprocket-glare-fix/SKILL.md` |
 
 ## 模块说明
@@ -60,9 +60,13 @@ pip install opencv-python-headless numpy pillow OpenEXR
 - 入口：`tiff-to-exr/epson2linear_exr.py`
 - 图文：`tiff-to-exr/SKILL.md`
 
-### 4. epson_scan-auto — 自动扫描（建设中）
+### 4. epson_scan-auto — EPSON Scan 3.9 自动扫描
 
-基于 EPSON Scan 官方软件的全自动执行流程：一键启动、自动走完扫描、结束提醒，省去逐张预览等待。目录与脚本尚在完善，**当前遇到此类需求请如实告知用户模块未就绪，不要编造用法**。
+自动控制经典 EPSON Scan 3.9（`escndv.exe`）走完机型确定→专业模式设置→配置→文件保存→预览→扫描→落盘全流程。三套流程方案用 JSON 保存、命令行切换：`rank`（48bit TIFF 排名）/ `jpg_social`（JPEG 社媒）/ `tiff_post`（48bit TIFF 后期）。全程后台消息级不抢鼠标，异常退出走三步优雅关闭、绝不杀进程。**默认 attach 已打开的窗口**——扫描仪须物理断电重启后第一次打开才正常，脚本不反复启停。
+
+- 入口：`epson_scan-auto/run_flow.py`（`python run_flow.py --flow rank --drive D`）
+- 图文：`epson_scan-auto/SKILL.md`、`epson_scan-auto/README.md`
+- 与 `tiff-to-exr` 的衔接：`tiff_post` 档默认「无色彩校正+曝光关」，扫出的 TIFF 可直接喂 `tiff-to-exr` 转 scene-linear EXR。
 
 ### 5. sprocket-glare-fix — 齿孔眩光改善
 
@@ -75,7 +79,7 @@ pip install opencv-python-headless numpy pillow OpenEXR
 
 1. 装依赖 → 用 `tilt-focus-sweep` 两遍扫描定出片夹垫高值。
 2. 按该高度固定片夹 → 用 `film-scan-rank` 扫多组配置并排名，选出最佳组合。
-3. 配置确定后 → 用 `epson_scan-auto` 批量自动扫描（待就绪）。
+3. 配置确定后 → 用 `epson_scan-auto` 选对应方案批量自动扫描（先物理重启扫描仪，脚本 attach 已打开的窗口）。
 4. 全齿孔扫描若有眩光 → 用 `sprocket-glare-fix` 处理。
 5. 扫描好的 TIFF 若要在达芬奇 / NamiColor 去色罩 → 用 `tiff-to-exr` 转线性 EXR。
 
@@ -83,4 +87,4 @@ pip install opencv-python-headless numpy pillow OpenEXR
 
 - 资料目录 `film-holder-material/`、`scanner-material/` 不是 skill，只提供片夹设计与扫描仪资料，不要当模块加载。
 - 五个模块仍可**单独安装使用**：把对应子目录复制到 `~/.workbuddy/skills/` 即可。本套装是入口，不取代它们的独立性。
-- `epson_scan-auto/` 目录建好并写入 `SKILL.md` 后，请回来更新本文件的路由表与模块说明。
+- `epson_scan-auto` 模块已就绪，遇到自动扫描需求按其 `SKILL.md` 执行，不要再用旧的一键脚本口径。
